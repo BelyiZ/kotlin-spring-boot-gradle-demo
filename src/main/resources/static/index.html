@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Список задач</title>
+    <script src="jquery-2.2.4.min.js"></script>
+</head>
+<body>
+
+<textarea id="newTaskContent"></textarea>
+<button onclick="postTask()">Добавить</button>
+
+<table id="contentTable"></table>
+
+<script>
+    var $table = $('#contentTable');
+    var $contentField = $('#newTaskContent');
+
+    function loadTasks() {
+        $table.html('');
+        $.get('/tasks', function (json) {
+            for (var i = 0; i < json.length; i++) {
+                $table.append("<tr>" +
+                        "<td>" + json[i].content + "</td>" +
+                        "<td style=\"cursor: pointer\" onclick=\"deleteTask('" + json[i].id + "')\">X</td>" +
+                        "</tr>")
+            }
+        }, 'json');
+    }
+
+    function postTask() {
+        $.ajax({
+            url: '/tasks',
+            type: 'POST',
+            data: $contentField.val(),
+            processData: false,
+            contentType: 'plain/text',
+            success: function() {
+               loadTasks();
+            }
+        });
+    }
+
+    function deleteTask(id) {
+        $.ajax({
+            url: '/tasks/' + id,
+            type: 'DELETE',
+            success: function() {
+               loadTasks();
+            }
+        });
+    }
+
+    loadTasks();
+</script>
+</body>
+</html>
